@@ -23,7 +23,7 @@ on:
       - 'CHANGELOG.md'
 
 env:
-  REPO_URL: https://git.openwrt.org/openwrt/openwrt
+  REPO_URL: https://git.openwrt.org/openwrt/openwrt.git
   REPO_BRANCH: v18.06.9
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
