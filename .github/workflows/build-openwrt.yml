@@ -18,6 +18,9 @@ on:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
+  push:
+    paths:
+      - 'CHANGELOG.md'
 
 env:
   REPO_URL: https://git.openwrt.org/openwrt/openwrt
