@@ -10,7 +10,26 @@
 # Description: OpenWrt DIY script part 1 (Before Update feeds)
 #
 
+#下载coolsnowwolf lede源码
+git clone https://github.com/coolsnowwolf/lede
+#复制lean到openwrt/package
+cp -r ./lede/package/lean ./openwrt/package
+#删除lede源码节省空间
+rm -rf ./lede
+
 cd openwrt
+
+#注释掉include/target.mk第16行
+sed -i '16s/^/#/' include/target.mk
+#include/target.mk第16行后面添加一行
+sed -i '16a \DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools uclient-fetch logd default-settings luci-app-vlmcsd' include/target.mk
+#注释掉include/target.mk第21行
+sed -i '21s/^/#/' include/target.mk
+#include/target.mk第21行后面添加一行
+sed -i '21a \DEFAULT_PACKAGES.router:=dnsmasq-full iptables ip6tables firewall odhcpd-ipv6only odhcp6c kmod-ipt-offload' include/target.mk
+
+#修改package/kernel/linux/files/sysctl-nf-conntrack.conf连接数16384为65536
+sed -i 's/16384/65536/' package/kernel/linux/files/sysctl-nf-conntrack.conf
 
 # Modify default IP 修改原始IP 【原：lan) ipad=${ipaddr:-"192.168.1.1"}】
 sed -i '103s/192.168.1.1/192.168.168.1/g' package/base-files/files/bin/config_generate
@@ -32,8 +51,8 @@ sed -i '116s/1/0/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
  
  #修改feeds.conf.default文件
 #sed -i '8a src-git kenzo https\:\/\/github.com\/kenzok8\/openwrt-packages\nsrc-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
-sed -i '$a src-git kenzo https\:\/\/github.com\/kenzok8\/openwrt-packages' feeds.conf.default
-sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
+#sed -i '$a src-git kenzo https\:\/\/github.com\/kenzok8\/openwrt-packages' feeds.conf.default
+#sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
 #sed -i '$a src-git cool https\:\/\/github.com\/coolsnowwolf\/packages' feeds.conf.default
 
 
@@ -44,3 +63,4 @@ sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.defau
 #sed -i '$a src-git lienol https://github.com/Lienol/openwrt-package' feeds.conf.default
 
 cd ..
+
