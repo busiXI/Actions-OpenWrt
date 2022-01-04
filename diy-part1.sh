@@ -17,6 +17,14 @@ cp -r ./lede/package/lean ./openwrt/package
 #删除lede源码节省空间
 rm -rf ./lede
 
+#####目的是提取vssr需要的libmaxminddb
+#下载openwrt/package 21.02源码
+git clone -b openwrt-21.02 https://github.com/openwrt/packages
+#复制libmaxminddb到openwrt/package/libs
+cp -r ./packages/libs/libmaxminddb ./openwrt/package/libs
+#删除packages源码节省空间
+rm -rf ./packages
+
 cd openwrt
 
 #注释掉include/target.mk第16行
