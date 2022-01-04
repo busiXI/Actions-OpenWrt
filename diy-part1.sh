@@ -9,7 +9,7 @@
 # File name: diy-part1.sh
 # Description: OpenWrt DIY script part 1 (Before Update feeds)
 #
-
+cd ..
 #下载coolsnowwolf lede源码
 git clone https://github.com/coolsnowwolf/lede
 #复制lean到openwrt/package
@@ -67,8 +67,8 @@ sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.defau
 #sed -i '$a src-git cool https\:\/\/github.com\/coolsnowwolf\/packages' feeds.conf.default
 cat feeds.conf.default
 
-sed -i 's/skip/b99ef18516b705b3e73b15a9d5ddc99add359299b52639fe3c81dd761591d9d9/' /package/feeds/kenzo/lua-maxminddb/Makefile
-cat /package/feeds/kenzo/lua-maxminddb/Makefile
+#sed -i 's/skip/b99ef18516b705b3e73b15a9d5ddc99add359299b52639fe3c81dd761591d9d9/' /package/feeds/kenzo/lua-maxminddb/Makefile
+#cat /package/feeds/kenzo/lua-maxminddb/Makefile
 
 # Uncomment a feed source
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
@@ -76,5 +76,4 @@ cat /package/feeds/kenzo/lua-maxminddb/Makefile
 # Add a feed source
 #sed -i '$a src-git lienol https://github.com/Lienol/openwrt-package' feeds.conf.default
 
-cd ..
 
