@@ -51,8 +51,8 @@ sed -i '116s/1/0/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
  
  #修改feeds.conf.default文件
 #sed -i '8a src-git kenzo https\:\/\/github.com\/kenzok8\/openwrt-packages\nsrc-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
-sed -i '$a src-git kenzo https\:\/\/github.com\/kenzok8\/small-packages' feeds.conf.default
-sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
+#sed -i '$a src-git kenzo https\:\/\/github.com\/kenzok8\/small-packages' feeds.conf.default
+#sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
 #sed -i '$a src-git cool https\:\/\/github.com\/coolsnowwolf\/packages' feeds.conf.default
 
 
