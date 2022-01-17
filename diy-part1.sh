@@ -25,7 +25,11 @@ cp -r ./packages/libs/libmaxminddb ./openwrt/package/libs
 #删除packages源码节省空间
 rm -rf ./packages
 
-cd openwrt
+cd openwrt/package
+#下载openclash
+git clone https://github.com/vernesong/OpenClash.git
+
+cd ..
 
 #注释掉include/target.mk第16行
 sed -i '16s/^/#/' include/target.mk
@@ -61,10 +65,10 @@ sed -i '116s/1/0/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
 cat package/kernel/mac80211/files/lib/wifi/mac80211.sh
  
  #修改feeds.conf.default文件
-sed -i '$a src-git kenzsp https\:\/\/github.com\/kenzok8\/small-package' feeds.conf.default
-sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
-sed -i '$a src-git kenzop https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-cat feeds.conf.default
+#sed -i '$a src-git kenzsp https\:\/\/github.com\/kenzok8\/small-package' feeds.conf.default
+#sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
+#sed -i '$a src-git kenzop https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+#cat feeds.conf.default
 
 #sed -i 's/skip/b99ef18516b705b3e73b15a9d5ddc99add359299b52639fe3c81dd761591d9d9/' /package/feeds/kenzo/lua-maxminddb/Makefile
 #cat /package/feeds/kenzo/lua-maxminddb/Makefile
