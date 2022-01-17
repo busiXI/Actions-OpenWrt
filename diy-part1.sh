@@ -22,6 +22,8 @@ rm -rf ./lede
 git clone -b openwrt-21.02 https://github.com/openwrt/packages
 #复制libmaxminddb到openwrt/package/libs
 cp -r ./packages/libs/libmaxminddb ./openwrt/package/libs
+#复制ruby到openwrt
+cp -r ./packages/lang/ruby ./openwrt
 #删除packages源码节省空间
 rm -rf ./packages
 
