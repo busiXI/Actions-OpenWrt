@@ -44,7 +44,8 @@ pushd luci-app-openclash/tools/po2lmo
 make && sudo make install
 popd
 
-cd ~/openwrt
+cd ..
+cd ..
 
 #注释掉include/target.mk第16行
 sed -i '16s/^/#/' include/target.mk
