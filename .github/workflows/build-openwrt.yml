@@ -72,7 +72,7 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P1_SH
 
     - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a && rm -rf ./feeds/packages/lang/ruby && cp -r ./ruby ./feeds/packages/lang && cat ./feeds/packages/lang/ruby/Makefile
+      run: cd openwrt && ./scripts/feeds update -a #&& rm -rf ./feeds/packages/lang/ruby && cp -r ./ruby ./feeds/packages/lang && cat ./feeds/packages/lang/ruby/Makefile
 
       
 
