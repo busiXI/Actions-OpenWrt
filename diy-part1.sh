@@ -14,8 +14,25 @@ cd ..
 git clone https://github.com/coolsnowwolf/lede
 #复制lean到openwrt/package
 cp -r ./lede/package/lean ./openwrt/package
+#复制ucl到openwrt/tools##vssr必备插件
+#cp -r ./lede/tools/ucl ./openwrt/tools
+#复制upx到openwrt/tools##vssr必备插件
+#cp -r ./lede/tools/upx ./openwrt/tools
 #删除lede源码节省空间
 rm -rf ./lede
+
+####################vssr必备修改，https://github.com/fw876/helloworld####################################
+svn checkout https://github.com/coolsnowwolf/lede/trunk/tools/ucl tools/ucl
+svn checkout https://github.com/coolsnowwolf/lede/trunk/tools/upx tools/upx
+
+sed -i 'N;24a\tools-y += ucl upx' tools/Makefile
+sed -i 'N;40a\$(curdir)/upx/compile := $(curdir)/ucl/compile' tools/Makefile
+
+mkdir -p package/helloworld
+for i in "dns2socks" "microsocks" "ipt2socks" "pdnsd-alt" "redsocks2"; do \
+  svn checkout "https://github.com/immortalwrt/packages/trunk/net/$i" "package/helloworld/$i"; \
+done
+
 
 ################################目的是提取vssr需要的libmaxminddb######################################
 #下载openwrt/package 21.02源码
