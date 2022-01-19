@@ -10,18 +10,18 @@
 # Description: OpenWrt DIY script part 1 (Before Update feeds)
 #
 cd ..
-#下载coolsnowwolf lede源码
+#######################################下载coolsnowwolf lede源码######################################
 git clone https://github.com/coolsnowwolf/lede
 #复制lean到openwrt/package
 cp -r ./lede/package/lean ./openwrt/package
 #删除lede源码节省空间
 rm -rf ./lede
 
-#####目的是提取vssr需要的libmaxminddb
+################################目的是提取vssr需要的libmaxminddb######################################
 #下载openwrt/package 21.02源码
-git clone -b openwrt-21.02 https://github.com/openwrt/packages
+#git clone -b openwrt-21.02 https://github.com/openwrt/packages
 #复制libmaxminddb到openwrt/package/libs
-cp -r ./packages/libs/libmaxminddb ./openwrt/package/libs
+#cp -r ./packages/libs/libmaxminddb ./openwrt/package/libs
 #复制ruby到openwrt
 #cp -r ./packages/lang/ruby ./openwrt
 #删除packages源码节省空间
@@ -29,7 +29,7 @@ cp -r ./packages/libs/libmaxminddb ./openwrt/package/libs
 
 cd openwrt
 
-#下载openclash
+##########################################下载openclash######################################
 #git clone https://github.com/vernesong/OpenClash.git
 #Clone 项目
 #mkdir package/luci-app-openclash
@@ -45,6 +45,12 @@ cd openwrt
 #make && sudo make install
 #popd
 
+cd package/lean/  
+git clone https://github.com/jerrykuku/lua-maxminddb.git  #git lua-maxminddb 依赖
+git clone https://github.com/jerrykuku/luci-app-vssr.git  
+ls
+cd ..
+cd ..
 
 #注释掉include/target.mk第16行
 sed -i '16s/^/#/' include/target.mk
@@ -79,11 +85,25 @@ cat target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr802n.c
 sed -i '116s/1/0/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
 cat package/kernel/mac80211/files/lib/wifi/mac80211.sh
  
- #修改feeds.conf.default文件
+ 
+ ######################修改feeds.conf.default文件###########################
 #sed -i '$a src-git kenzsp https\:\/\/github.com\/kenzok8\/small-package' feeds.conf.default
 #sed -i '$a src-git small https\:\/\/github.com\/kenzok8\/small' feeds.conf.default
 #sed -i '$a src-git kenzop https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-#cat feeds.conf.default
+sed -i '$a src-git helloworld https://github.com/fw876/helloworld' feeds.conf.default
+sed -i '$a src-git passwall https://github.com/xiaorouji/openwrt-passwall' feeds.conf.default
+cat feeds.conf.default
+
+
+
+
+
+
+
+
+
+
+
 
 #sed -i 's/skip/b99ef18516b705b3e73b15a9d5ddc99add359299b52639fe3c81dd761591d9d9/' /package/feeds/kenzo/lua-maxminddb/Makefile
 #cat /package/feeds/kenzo/lua-maxminddb/Makefile
