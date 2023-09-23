@@ -12,3 +12,7 @@
 
 # Modify default IP
 #sed -i 's/192.168.1.1/192.168.50.5/g' package/base-files/files/bin/config_generate
+
+#替换tiny-tp-link.mk文件第471行字符
+sed -i '307s/4mlzma/16mlzma/g' target/linux/ath79/image/tiny-tp-link.mk
+cat target/linux/ath79/image/tiny-tp-link.mk
