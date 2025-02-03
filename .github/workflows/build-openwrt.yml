@@ -12,14 +12,42 @@ jobs:
 
     steps:
     - name: Checkout project repo
-      uses: actions/checkout@v4  # 更新至v4
-      with:
-        path: config-repo
+      uses: actions/checkout@v4
 
     - name: Clone OpenWrt source
       run: |
         git clone --depth=1 https://git.openwrt.org/openwrt/openwrt.git -b v22.03.5 openwrt-src
-        echo "OpenWrt version: $(cat openwrt-src/version)"
+
+    - name: Install dependencies (Python 3 fix)
+      run: |
+        sudo apt-get update
+        # 修复关键依赖
+        sudo apt-get install -y \
+          python3 \
+          python3-pip \
+          python3-setuptools \
+          python3-dev \
+          build-essential \
+          clang \
+          flex \
+          bison \
+          g++ \
+          gawk \
+          gcc-multilib \
+          g++-multilib \
+          gettext \
+          git \
+          libncurses-dev \
+          libssl-dev \
+          rsync \
+          unzip \
+          zlib1g-dev \
+          file \
+          wget
+
+        # 确保 distutils 可用
+        python3 -m ensurepip --upgrade
+        pip3 install --user setuptools
 
     - name: Setup build environment
       run: |
