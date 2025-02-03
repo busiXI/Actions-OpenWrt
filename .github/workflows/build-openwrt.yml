@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout project repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4  # 更新至v4
       with:
         path: config-repo
 
@@ -101,10 +101,12 @@ jobs:
         fi
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # 关键修复点
       with:
         name: wr802n-v1-firmware
         path: openwrt-src/bin/targets/ar71xx/generic/openwrt-*-tl-wr802n-v1-squashfs-sysupgrade.bin
+        compression-level: 0  # 新增推荐参数
+        overwrite: true
 
     - name: Cleanup
       if: always()
