@@ -16,7 +16,7 @@ jobs:
       with:
         path: config-repo
 
-    - name: Clone OpenWrt
+    - name: Clone OpenWrt 
       run: |
         git clone --depth=1 https://github.com/openwrt/openwrt.git -b v22.03.5 openwrt-src
 
