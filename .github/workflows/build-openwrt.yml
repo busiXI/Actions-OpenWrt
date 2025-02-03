@@ -30,7 +30,7 @@ jobs:
         cp -r ../config-repo/files files
         find files/etc/config -type d -exec chmod 0755 {} \;  # 目录权限
         find files/etc/config -type f -exec chmod 0644 {} \;  # 文件权限
-        chown -R root:root files/etc/config                   # 所有者
+        sudo chown -R root:root files/etc/config                   # 所有者
         cp ../config-repo/.config .
 
     - name: 应用补丁和修复权限
