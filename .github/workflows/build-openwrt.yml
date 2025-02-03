@@ -90,7 +90,7 @@ jobs:
       run: |
         cd openwrt-src
         source ~/openwrt-env/bin/activate
-        echo 'src-git tailscale https://github.com/tailscale/openwrt-tailscale.git' >> feeds.conf.default
+        # echo 'src-git tailscale https://github.com/tailscale/openwrt-tailscale.git' >> feeds.conf.default
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
