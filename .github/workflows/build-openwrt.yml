@@ -51,37 +51,37 @@ jobs:
         # 配置无线热点
         mkdir -p files/etc/config
         cat > files/etc/config/wireless << EOF
-config wifi-device 'radio0'
-    option type 'mac80211'
-    option channel '6'
-    option hwmode '11g'
-    option path 'pci0000:00/0000:00:00.0'
-    option txpower '20'
-    option country 'CN'
-
-config wifi-iface
-    option device 'radio0'
-    option network 'lan'
-    option mode 'ap'
-    option ssid 'WR802N-v1-AP'
-    option encryption 'psk2'
-    option key 'yourpassword'
-EOF
+        config wifi-device 'radio0'
+            option type 'mac80211'
+            option channel '6'
+            option hwmode '11g'
+            option path 'pci0000:00/0000:00:00.0'
+            option txpower '20'
+            option country 'CN'
+        
+        config wifi-iface
+            option device 'radio0'
+            option network 'lan'
+            option mode 'ap'
+            option ssid 'WR802N-v1-AP'
+            option encryption 'psk2'
+            option key 'yourpassword'
+        EOF
 
         # 配置LAN IP地址
         cat > files/etc/config/network << EOF
-config interface 'loopback'
-    option ifname 'lo'
-    option proto 'static'
-    option ipaddr '127.0.0.1'
-    option netmask '255.0.0.0'
-
-config interface 'lan'
-    option ifname 'eth0'
-    option proto 'static'
-    option ipaddr '172.18.18.1'
-    option netmask '255.255.255.0'
-EOF
+        config interface 'loopback'
+            option ifname 'lo'
+            option proto 'static'
+            option ipaddr '127.0.0.1'
+            option netmask '255.0.0.0'
+        
+        config interface 'lan'
+            option ifname 'eth0'
+            option proto 'static'
+            option ipaddr '172.18.18.1'
+            option netmask '255.255.255.0'
+        EOF
 
         # 复制主配置文件
         cp ../config-repo/.config .
