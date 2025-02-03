@@ -65,7 +65,7 @@ jobs:
     - name: Verify firmware
       run: |
         cd openwrt-src/bin/targets/ath79/generic/
-        FIRMWARE=$(ls openwrt-*-tplink_tl-wr802n-v1-*.bin)
+        FIRMWARE=$(ls openwrt-ath79-*.bin)
         strings $FIRMWARE | grep -q 'qca9533' || (echo "芯片验证失败"; exit 1)
         grep -aq '172.18.18.1' $FIRMWARE || (echo "IP配置丢失"; exit 1)
 
@@ -73,4 +73,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
-        path: openwrt-src/bin/targets/ath79/generic/openwrt-*-tplink_tl-wr802n-v1-*.bin
+        path: openwrt-src/bin/targets/ath79/generic/openwrt-ath79-*.bin
