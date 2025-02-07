@@ -90,12 +90,15 @@ jobs:
         make -j$(($(nproc) + 2)) V=s || (make V=s -j1; exit 1)
 
 
-    - name: Verify firmware
+    - name: Verify Firmware
       run: |
         cd openwrt-src/bin/targets/ath79/generic/
-        FIRMWARE=$(ls openwrt-ath79-*.bin)
-        strings $FIRMWARE | grep -q 'qca9533' || (echo "芯片验证失败"; exit 1)
-        grep -aq '172.18.18.1' $FIRMWARE || (echo "IP配置丢失"; exit 1)
+        echo "=== 固件列表 ==="
+        ls -lh *.bin
+        echo "=== 固件信息验证 ==="
+        FIRMWARE=$(ls openwrt-ath79-generic-tplink_tl-wr802n-v1-*.bin)
+        hexdump -C $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
+        strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
