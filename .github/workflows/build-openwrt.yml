@@ -47,12 +47,29 @@ jobs:
     - name: Apply Patches
       run: |
         cd openwrt-src
-        quilt new wr802n_mod.patch
-        quilt edit target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
-        sed -i 's/reg = <0x50000 0x7b0000>/reg = <0x50000 0x3c00000>/' \
-          target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
-        quilt refresh
-
+        mkdir -p patches/ath79/dts
+        
+        # 生成标准补丁文件
+        cat << 'EOF' > patches/ath79/dts/100-wr802n-memory.patch
+        --- a/target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
+        +++ b/target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
+        @@ -30,7 +30,7 @@
+                 partitions {
+                         compatible = "fixed-partitions";
+                         #address-cells = <1>;
+                         #size-cells = <1>;
+                        -               reg = <0x50000 0x7b0000>;
+                        +               reg = <0x50000 0x3c00000>;
+ 
+                         partition@0 {
+                                 label = "u-boot";
+        EOF
+        
+        # 应用补丁队列
+        export QUILT_PATCHES=patches
+        quilt push -a --fuzz=0
+        
+        # 复制配置文件
         cp -r ../config-repo/files files
         find files/etc/config -type d -exec chmod 0755 {} \;
         find files/etc/config -type f -exec chmod 0644 {} \;
