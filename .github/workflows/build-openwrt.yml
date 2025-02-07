@@ -50,26 +50,18 @@ jobs:
       run: |
         cd openwrt-src
         source ~/venv/bin/activate
-        # 清理旧文件
+        # 清理旧配置
         make clean
-        make dirclean
+        # 生成默认配置
+        make defconfig
         # 强制指定目标设备
         echo "CONFIG_TARGET_ath79_generic_DEVICE_tplink_tl-wr802n-v1=y" >> .config
-        # 禁用冲突选项
-        sed -i 's/CONFIG_TARGET_ath79_generic_DEVICE_\(.*\)=y/# &/' .config
+        # 禁用冲突软件包
+        echo "CONFIG_PACKAGE_kexec-tools=n" >> .config
+        echo "CONFIG_PACKAGE_lldpd=n" >> .config
+        echo "CONFIG_PACKAGE_policycoreutils=n" >> .config
         # 编译
-        make -j$(($(nproc) + 2)) V=s
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        # 确保清理旧配置（可选）
-        # make clean
-        # make defconfig
-        # 强制禁用 LZ4/ZSTD（从日志中提取）
-        # sed -i 's/CONFIG_INITRAMFS_COMPRESSION_LZ4=y/# CONFIG_INITRAMFS_COMPRESSION_LZ4 is not set/' .config
-        # sed -i 's/CONFIG_RD_LZ4=y/# CONFIG_RD_LZ4 is not set/' .config
-        # sed -i 's/CONFIG_INITRAMFS_COMPRESSION_ZSTD=y/# CONFIG_INITRAMFS_COMPRESSION_ZSTD is not set/' .config
-        # sed -i 's/CONFIG_RD_ZSTD=y/# CONFIG_RD_ZSTD is not set/' .config
-        # make -j$(($(nproc) + 2)) V=s
+        make -j$(nproc) V=s
 
     - name: Verify firmware
       run: |
