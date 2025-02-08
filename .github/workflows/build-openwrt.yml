@@ -98,11 +98,11 @@ jobs:
 
     - name: Verify Firmware
       run: |
-        cd openwrt-src/bin/targets/ath79/generic/
+        cd openwrt-src/bin/targets/ath79/tiny/
         echo "=== 固件列表 ==="
         ls -lh *.bin
         echo "=== 固件信息验证 ==="
-        FIRMWARE=$(ls openwrt-ath79-generic-tplink_tl-wr802n-v1-*.bin)
+        FIRMWARE=$(ls openwrt-ath79-tiny-tplink_tl-wr802n-v1-*.bin)
         hexdump -C $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
         strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
 
@@ -110,4 +110,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
-        path: openwrt-src/bin/targets/ath79/generic/openwrt-ath79-*.bin
+        path: openwrt-src/bin/targets/ath79/tiny/openwrt-ath79-*.bin
