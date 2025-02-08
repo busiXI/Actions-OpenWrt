@@ -47,10 +47,10 @@ jobs:
     - name: Apply Patches
       run: |
         cd openwrt-src
-        mkdir -p package/ath79/patches
+        mkdir -p target/linux/ath79/patches-5.10
         
         # 生成标准补丁文件
-        cat << 'EOF' > package/ath79/patches/100-wr802n-memory.patch
+        cat << 'EOF' > target/linux/ath79/patches-5.10/100-wr802n-memory.patch
         --- a/target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
         +++ b/target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
         @@ -30,7 +30,7 @@
@@ -65,15 +65,22 @@ jobs:
                                  label = "u-boot";
         EOF
         
-        # 更新并应用补丁
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        
         # 复制配置文件
         cp -r ../config-repo/files files
         find files/etc/config -type d -exec chmod 0755 {} \;
         find files/etc/config -type f -exec chmod 0644 {} \;
         cp ../config-repo/.config .
+
+    - name: Apply Config
+      run: |
+        cd openwrt-src
+        make oldconfig
+        ./scripts/diffconfig.sh > diffconfig
+        if ! grep -q 'CONFIG_TARGET_ath79_generic_DEVICE_tplink_tl-wr802n-v1=y' diffconfig; then
+          echo "设备配置丢失，当前配置："
+          cat diffconfig
+          exit 1
+        fi
 
     - name: Build Firmware
       run: |
@@ -81,27 +88,20 @@ jobs:
         cd openwrt-src
         source ~/venv/bin/activate
         
-        make defconfig
-        sed -i 's/CONFIG_INITRAMFS_COMPRESSION_LZ4=y/# CONFIG_INITRAMFS_COMPRESSION_LZ4 is not set/' .config
-        sed -i 's/CONFIG_RD_LZ4=y/# CONFIG_RD_LZ4 is not set/' .config
-        sed -i 's/CONFIG_INITRAMFS_COMPRESSION_ZSTD=y/# CONFIG_INITRAMFS_COMPRESSION_ZSTD is not set/' .config
-        sed -i 's/CONFIG_RD_ZSTD=y/# CONFIG_RD_ZSTD is not set/' .config
-        
-        make -j$(($(nproc) + 2)) V=s || (make V=s -j1; exit 1)
-
+        make PROFILE="tplink_tl-wr802n-v1" \
+            -j$(($(nproc) + 2)) V=s || (make V=s -j1; exit 1)
 
     - name: Verify Firmware
       run: |
         cd openwrt-src/bin/targets/ath79/generic/
-        echo "=== 固件列表 ==="
-        ls -lh *.bin
-        echo "=== 固件信息验证 ==="
+        echo "=== 固件详情 ==="
         FIRMWARE=$(ls openwrt-ath79-generic-tplink_tl-wr802n-v1-*.bin)
-        hexdump -C $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
-        strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
+        file $FIRMWARE
+        strings $FIRMWARE | grep -q 'qca9533' || (echo "芯片验证失败"; exit 1)
+        grep -aq '172.18.18.1' $FIRMWARE || (echo "IP配置丢失"; exit 1)
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
-        path: openwrt-src/bin/targets/ath79/generic/openwrt-ath79-*.bin
+        path: openwrt-src/bin/targets/ath79/generic/openwrt-ath79-generic-tplink_tl-wr802n-v1-*.bin
