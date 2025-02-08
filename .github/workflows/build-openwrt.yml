@@ -66,6 +66,8 @@ jobs:
                                  label = "u-boot";
         EOF
         
+        ls
+        
         # 更新并应用补丁
         ./scripts/feeds update -a
         ./scripts/feeds install -a
@@ -83,7 +85,8 @@ jobs:
         cp ../config-repo/.config .
         sed -i 's/reg = <0x50000 0x7b0000>/reg = <0x50000 0x3c00000>/' \
           target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
-        ls
+        
+        ls target/linux/ath79/dts
         
         # 必须禁用自动配置
         touch .config
