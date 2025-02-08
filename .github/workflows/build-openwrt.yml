@@ -77,8 +77,7 @@ jobs:
         make oldconfig
         ./scripts/diffconfig.sh > diffconfig
         if ! grep -q 'CONFIG_TARGET_ath79_generic_DEVICE_tplink_tl-wr802n-v1=y' diffconfig; then
-          echo "设备配置丢失，当前配置："
-          cat diffconfig
+          echo "设备配置仍缺失，请检查OpenWrt版本兼容性！"
           exit 1
         fi
 
