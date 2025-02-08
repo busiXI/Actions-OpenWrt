@@ -20,12 +20,15 @@ jobs:
 
     - name: Cache OpenWrt
       uses: actions/cache@v3
+      id: openwrt-cache
       with:
-        path: |
-          openwrt-src/dl
-          openwrt-src/build_dir
-          ~/.ccache
-        key: ${{ runner.os }}-openwrt-${{ hashFiles('config-repo/.config') }}
+        path: |  # 缓存路径
+          openwrt-src/dl       # 下载目录
+          openwrt-src/build_dir # 构建目录
+          ~/.ccache            # 编译缓存
+        key: ${{ runner.os }}-openwrt-${{ hashFiles('openwrt-src/scripts/feeds') }}
+        restore-keys: |  # 缓存回退机制
+          ${{ runner.os }}-openwrt-
 
     - name: Clone OpenWrt
       run: |
