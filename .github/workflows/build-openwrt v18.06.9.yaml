@@ -1,0 +1,116 @@
+name: WR802N-v1 Build openwrt v18.06.9
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        path: config-repo
+
+    - name: Cache OpenWrt
+      uses: actions/cache@v3
+      id: openwrt-cache
+      with:
+        path: |  # 缓存路径
+          openwrt-src/dl       # 下载目录
+          openwrt-src/build_dir # 构建目录
+          ~/.ccache            # 编译缓存
+        key: ${{ runner.os }}-openwrt-${{ hashFiles('openwrt-src/scripts/feeds') }}
+        restore-keys: |  # 缓存回退机制
+          ${{ runner.os }}-openwrt-
+
+    - name: Clone OpenWrt
+      run: |
+        git clone --depth=1 --branch v18.06.9 https://github.com/openwrt/openwrt.git openwrt-src
+
+    - name: Install Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+          gettext git libncurses-dev libssl-dev rsync unzip zlib1g-dev file wget \
+          python3 python3-venv
+
+    - name: Setup Python
+      run: |
+        python3 -m venv ~/venv
+        source ~/venv/bin/activate
+
+    - name: Apply Patches
+      run: |
+        cd openwrt-src
+        #############替换tiny-tp-link.mk文件第474行字符##############
+        sed -i '474s/4mlzma/16mlzma/g' target/linux/ar71xx/image/tiny-tp-link.mk
+        cat target/linux/ar71xx/image/tiny-tp-link.mk
+        #删除02_network文件第147行
+        sed -i '147d' target/linux/ar71xx/base-files/etc/board.d/02_network
+        #在158行末尾新增tl-wr802n-v1)设定，新增WAN口LAN口
+        sed -i '158a \\ttl-wr802n-v1)\n\t\tucidef_set_interface_wan \"eth0\"\n\t\tucidef_set_interface_lan \"eth1\"\n\t\t\;\;' target/linux/ar71xx/base-files/etc/board.d/02_network
+        cat target/linux/ar71xx/base-files/etc/board.d/02_network
+        #在88行末尾新增，设置WAN信息，默认网口为WAN口
+        sed -i '88a \\tath79_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_MII\;\n\tath79_eth1_data.duplex = DUPLEX_FULL\;\n\tath79_eth1_data.speed = SPEED_100\;\n\tath79_eth1_data.phy_mask = BIT(4)\;\n\tath79_init_mac(ath79_eth1_data.mac_addr, mac, 2)\;\n\tath79_register_eth(1)\;\n' target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr802n.c
+        cat target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr802n.c
+                
+        
+        # 更新并应用补丁
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        
+        # 复制配置文件
+        cp -r ../config-repo/files files
+        find files/etc/config -type d -exec chmod 0755 {} \;
+        find files/etc/config -type f -exec chmod 0644 {} \;
+        cp ../config-repo/.config .
+
+    - name: Build Firmware
+      run: |
+        set -euxo pipefail
+        cd openwrt-src
+        source ~/venv/bin/activate
+        
+        make defconfig
+        sed -i 's/CONFIG_INITRAMFS_COMPRESSION_LZ4=y/# CONFIG_INITRAMFS_COMPRESSION_LZ4 is not set/' .config
+        sed -i 's/CONFIG_RD_LZ4=y/# CONFIG_RD_LZ4 is not set/' .config
+        sed -i 's/CONFIG_INITRAMFS_COMPRESSION_ZSTD=y/# CONFIG_INITRAMFS_COMPRESSION_ZSTD is not set/' .config
+        sed -i 's/CONFIG_RD_ZSTD=y/# CONFIG_RD_ZSTD is not set/' .config
+        
+        make V=s -j1
+
+
+#    - name: Verify Firmware
+#      run: |
+#        cd openwrt-src/bin/targets/ath79/tiny/
+#        echo "=== 固件列表 ==="
+#        ls -lh *.bin
+#        echo "=== 固件信息验证 ==="
+#        FIRMWARE="openwrt-ath79-tiny-tplink_tl-wr802n-v1-squashfs-sysupgrade.bin"
+#        strings $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
+#        strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: openwrt-firmware
+        path: openwrt-src/bin
+        
+        
+    - name: Upload firmware to release
+      uses: softprops/action-gh-release@v1
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+        files: ${{ env.FIRMWARE }}/*
