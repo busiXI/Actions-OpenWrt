@@ -99,11 +99,11 @@ jobs:
 #        strings $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
 #        strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: openwrt-firmware
-        path: openwrt-src/bin
+#    - name: Upload artifact
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: openwrt-firmware
+#        path: openwrt-src/bin
         
         
     - name: Upload firmware to release
@@ -115,3 +115,18 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
+
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 10
+        keep_minimum_runs: 3
+
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@v0.1.0
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 15
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
