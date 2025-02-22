@@ -91,7 +91,7 @@ jobs:
 
 #    - name: Verify Firmware
 #      run: |
-#        cd openwrt-src/bin/targets/ath79/tiny/
+#        cd openwrt-src/bin
 #        echo "=== 固件列表 ==="
 #        ls -lh *.bin
 #        echo "=== 固件信息验证 ==="
