@@ -23,16 +23,16 @@ jobs:
       id: openwrt-cache
       with:
         path: |  # 缓存路径
-          openwrt-src/dl       # 下载目录
-          openwrt-src/build_dir # 构建目录
+          openwrt/dl       # 下载目录
+          openwrt/build_dir # 构建目录
           ~/.ccache            # 编译缓存
-        key: ${{ runner.os }}-openwrt-${{ hashFiles('openwrt-src/scripts/feeds') }}
+        key: ${{ runner.os }}-openwrt-${{ hashFiles('openwrt/scripts/feeds') }}
         restore-keys: |  # 缓存回退机制
           ${{ runner.os }}-openwrt-
 
     - name: Clone OpenWrt
       run: |
-        git clone --depth=1 --branch v22.03.5 https://github.com/openwrt/openwrt.git openwrt-src
+        git clone https://github.com/openwrt/openwrt.git
 
     - name: Install Build Dependencies
       run: |
@@ -49,27 +49,14 @@ jobs:
 
     - name: Apply Patches
       run: |
-        cd openwrt-src
+        cd openwrt
         sed -i '343s/4mlzma/16mlzma/g' target/linux/ath79/image/tiny-tp-link.mk
         cat target/linux/ath79/image/tiny-tp-link.mk
         
-        mkdir -p package/ath79/patches
+        sed -i '70s/0x3d0000/0xfd0000/g' target/linux/ath79/dts/qca9533_tplink_tl-wr802n.dtsi
+        sed -i '76s/0x3f0000/0xff0000/g' target/linux/ath79/dts/qca9533_tplink_tl-wr802n.dtsi
+        cat target/linux/ath79/dts/qca9533_tplink_tl-wr802n.dtsi
         
-        # 生成标准补丁文件
-        cat << 'EOF' > package/ath79/patches/100-wr802n-memory.patch
-        --- a/target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
-        +++ b/target/linux/ath79/dts/qca9533_tplink_tl-wr802n-v1.dts
-        @@ -30,7 +30,7 @@
-                 partitions {
-                         compatible = "fixed-partitions";
-                         #address-cells = <1>;
-                         #size-cells = <1>;
-        -                reg = <0x50000 0x7b0000>;
-        +                reg = <0x50000 0x3c00000>;
- 
-                         partition@0 {
-                                 label = "u-boot";
-        EOF
         
         # 更新并应用补丁
         ./scripts/feeds update -a
@@ -84,7 +71,7 @@ jobs:
     - name: Build Firmware
       run: |
         set -euxo pipefail
-        cd openwrt-src
+        cd openwrt
         source ~/venv/bin/activate
         
         make defconfig
@@ -98,7 +85,7 @@ jobs:
 
 #    - name: Verify Firmware
 #      run: |
-#        cd openwrt-src/bin/targets/ath79/tiny/
+#        cd openwrt/bin/targets/ath79/tiny/
 #        echo "=== 固件列表 ==="
 #        ls -lh *.bin
 #        echo "=== 固件信息验证 ==="
@@ -110,4 +97,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
-        path: openwrt-src/bin/targets/ath79/tiny/openwrt-ath79-*.bin
+        path: openwrt/bin/targets/ath79/tiny/openwrt-ath79-*.bin
