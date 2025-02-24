@@ -82,19 +82,51 @@ jobs:
         
         make V=s -j1
 
-
-#    - name: Verify Firmware
-#      run: |
-#        cd openwrt/bin/targets/ath79/tiny/
-#        echo "=== 固件列表 ==="
-#        ls -lh *.bin
-#        echo "=== 固件信息验证 ==="
-#        FIRMWARE="openwrt-ath79-tiny-tplink_tl-wr802n-v1-squashfs-sysupgrade.bin"
-#        strings $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
-#        strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
+    - name: Verify Firmware
+      run: |
+        cd openwrt/bin/targets/ath79/tiny/
+        echo "=== 固件列表 ==="
+        ls -lh *.bin
+        echo "=== 固件信息验证 ==="
+        FIRMWARE="openwrt-ath79-tiny-tplink_tl-wr802n-v1-squashfs-sysupgrade.bin"
+        strings $FIRMWARE | grep -m1 'qca9533' || (echo "芯片验证失败（二进制检查）"; exit 1)
+        strings $FIRMWARE | grep -q '172.18.18.1' || (echo "IP配置丢失"; exit 1)
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
         path: openwrt/bin/targets/ath79/tiny/openwrt-ath79-*.bin
+
+    - name: Get release metadata
+      id: metadata
+      run: |
+        echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        echo "TIME=$(date +'%H%M')" >> $GITHUB_OUTPUT
+        echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        
+        # 获取提交信息（仅push事件）
+        if [ "${{ github.event_name }}" = "push" ]; then
+          echo "COMMITS=$(git log --pretty=format:'- %s (%%h)' ${{ github.event.before }}..${{ github.sha }} | sed 's/%/%%/g')" >> $GITHUB_OUTPUT
+        else
+          echo "COMMITS=Manual workflow dispatch" >> $GITHUB_OUTPUT
+        fi
+
+    # 新增步骤：发布到GitHub Release
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      if: github.ref == 'refs/heads/main' && success()
+      with:
+        tag_name: release-${{ steps.metadata.outputs.DATE }}-${{ steps.metadata.outputs.TIME }}
+        name: WR802N-v1 (${{ steps.metadata.outputs.DATE }})
+        body: | 
+          ### 构建信息
+          - 提交哈希: [${{ steps.metadata.outputs.SHA_SHORT }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+          - 构建时间: ${{ steps.metadata.outputs.DATE }} ${{ steps.metadata.outputs.TIME }}
+
+          ### 更新内容
+          ${{ steps.metadata.outputs.COMMITS }}
+        files: |
+          openwrt/bin/targets/ath79/tiny/openwrt-ath79-*.bin
+        draft: false
+        prerelease: false
