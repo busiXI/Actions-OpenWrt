@@ -1,4 +1,4 @@
-# WR802N-OpenWrt v22.03.5 by DeepSeek
+# WR802N v1-OpenWrt v24.10.0
 
 ## 思路
 
@@ -52,25 +52,6 @@
 
 7. 提供刷机说明。
 
-可能的代码部分包括：
-
-- 修改feeds.conf.default或添加自定义feeds.conf，可能Tailscale在某个第三方feed中，例如：
-
-src-git packages https://git.openwrt.org/feed/packages.git
-
-或者如果Tailscale不在官方源中，需要添加第三方源，比如：
-
-src-git tailscale https://github.com/tailscale/openwrt-tailscale.git
-
-需要检查Tailscale是否有OpenWrt的包，或者是否需要自行创建。
-
-例如，Tailscale的官方文档提到他们的包在openwrt的community packages中，可能需要添加相应的feed。
-
-假设Tailscale在某个feed中，用户需要更新feeds，并安装对应的包。
-
-然后，在menuconfig中的Network或Utilities部分选择Tailscale。
-
-另外，可能需要配置Go编译器，因为Tailscale是用Go写的，但OpenWrt的构建系统应该会处理交叉编译的问题，只要对应的Go包被正确选中。
 
 ## Usage
 
