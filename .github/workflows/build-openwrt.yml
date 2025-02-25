@@ -32,7 +32,7 @@ jobs:
 
     - name: Clone OpenWrt
       run: |
-        git clone https://github.com/openwrt/openwrt.git
+        git clone--branch v24.10.0  https://github.com/openwrt/openwrt.git
 
     - name: Install Build Dependencies
       run: |
